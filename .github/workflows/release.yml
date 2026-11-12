@@ -1,0 +1,40 @@
+name: release
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+# tags de version uniquement
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Compilation
+        run: |
+          mkdir -p bin
+          make build
+      - name: Publication du binaire
+        uses: actions/upload-artifact@v7
+        with:
+          name: sysinfo-${{ github.sha }}
+          path: bin/sysinfo
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # nécessaire pour créer la release
+    steps:
+      - name: Récupération du binaire
+        uses: actions/download-artifact@v8
+        with:
+          name: sysinfo-${{ github.sha }}
+          path: bin
+      - name: Publication dans une release GitHub
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" bin/sysinfo \
+            --title "sysinfo $GITHUB_REF_NAME" \
+            --generate-notes
