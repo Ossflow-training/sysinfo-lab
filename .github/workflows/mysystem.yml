@@ -14,30 +14,28 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-python@v7
-      with:
-        python-version: '3.13'
-        cache: 'pip'
- # active le cache pip
-        cache-dependency-path: script/mysystem/requirements.txt
-    - name: Dépendances
-      run: pip install ifaddr psutil pylint
-    - name: Lint
-      run: pylint --disable=missing-docstring script/mysystem/mysystem.py
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+          cache: 'pip' # active le cache pip
+          cache-dependency-path: script/mysystem/requirements.txt
+      - name: Dépendances
+        run: pip install ifaddr psutil pylint
+      - name: Lint
+        run: pylint --disable=missing-docstring script/mysystem/mysystem.py
 
   run:
     needs: lint
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-python@v7
-      with:
-        python-version: '3.13'
-        cache: 'pip'
- # active le cache pip
-        cache-dependency-path: script/mysystem/requirements.txt        
-    - name: Dépendances
-      run: pip install ifaddr psutil
-    - name: Exécution
-      run: python script/mysystem/mysystem.py
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+          cache: 'pip' # active le cache pip
+          cache-dependency-path: script/mysystem/requirements.txt
+      - name: Dépendances
+        run: pip install ifaddr psutil
+      - name: Exécution
+        run: python script/mysystem/mysystem.py
