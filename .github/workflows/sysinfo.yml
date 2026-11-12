@@ -19,3 +19,22 @@ jobs:
               run: |
                 mkdir -p bin
                 make build
+            - name: Publication du binaire
+              uses: actions/upload-artifact@v7
+              with:
+                name: sysinfo-${{ github.sha }}
+                path: bin/sysinfo
+
+    run:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Récupération du binaire
+              uses: actions/download-artifact@v8
+              with:
+                name: sysinfo-${{ github.sha }}
+                path: bin
+            - name: Exécution
+              run: |
+                chmod +x bin/sysinfo
+                ./bin/sysinfo
