@@ -19,9 +19,14 @@ jobs:
         with:
           name: sysinfo-${{ github.sha }}
           path: bin/sysinfo
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    environment:
+    # approbation + restriction aux tags v*
+      name: production
+      url: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}    
     permissions:
       contents: write # nécessaire pour créer la release
     steps:
