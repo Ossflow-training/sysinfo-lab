@@ -1,0 +1,91 @@
+name: contextes
+
+on:
+  push:
+    branches: ['feature/**']
+    paths:
+      - .github/workflows/contextes.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PORTEE: workflow
+  FORMATION: github-actions
+
+jobs:
+  interpretation:
+    runs-on: ubuntu-latest
+    env:
+      PORTEE: job
+    outputs:
+      version: ${{ steps.calcul.outputs.version }}
+    steps:
+      - name: 1. Variables par défaut et contextes
+        run: |
+          echo "contexte       : ${{ github.ref_name }} / ${{ github.sha }}"
+          echo "variable       : $GITHUB_REF_NAME / $GITHUB_SHA"
+          echo "env.GITHUB_SHA : '${{ env.GITHUB_SHA }}'"
+          echo "runner         : ${{ runner.os }} / $RUNNER_OS"
+          echo "événement      : ${{ github.event_name }} par ${{ github.actor }}"
+
+      - name: 2. Portée des variables env
+        env:
+          PORTEE: step
+        run: |
+          echo "shell    : $PORTEE"
+          echo "contexte : ${{ env.PORTEE }}"
+          echo "workflow : $FORMATION"
+
+      - name: 3. Qui interprète quoi ?
+        run: |
+          echo 'simples quotes, shell    : $HOME'
+          echo "doubles quotes, shell    : $HOME"
+          echo 'simples quotes, contexte : ${{ env.FORMATION }}'
+          echo "PORTEE dans ce step      : $PORTEE"
+
+      - name: 4. Variables de configuration et secrets
+        env:
+          NIVEAU: ${{ vars.NIVEAU }}
+          SECRET: ${{ secrets.DEMO_SECRET }}
+        run: |
+          echo "vars.NIVEAU (contexte) : ${{ vars.NIVEAU }}"
+          echo "NIVEAU (shell)         : $NIVEAU"
+          echo "secret                 : $SECRET"
+          echo "longueur du secret     : ${#SECRET}"
+
+      - name: 5a. Variables pour les steps suivants
+        run: |
+          export PERDUE=oui
+          echo "TRANSMISE=oui" >> "$GITHUB_ENV"
+
+      - name: 5b. Lecture dans le step suivant
+        run: |
+          echo "PERDUE    : '${PERDUE:-}'"
+          echo "TRANSMISE : '$TRANSMISE'"
+
+      - name: 6. Output d'un step
+        id: calcul
+        run: echo "version=1.0.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+      - name: 7. Expressions
+        run: |
+          echo "output    : ${{ steps.calcul.outputs.version }}"
+          echo "condition : ${{ github.event_name == 'push' && 'automatique' || 'manuel' }}"
+          echo "fonction  : ${{ startsWith(github.ref_name, 'feature/') }}"
+          echo "SHA court : ${GITHUB_SHA::7}"
+
+      - name: 8. Donnée externe passée par env
+        env:
+          MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          echo "message : $MESSAGE"
+
+  lecture:
+    needs: interpretation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output d'un autre job
+        run: |
+          echo "version reçue : ${{ needs.interpretation.outputs.version }}"
