@@ -18,6 +18,9 @@ jobs:
     - uses: actions/setup-python@v7
       with:
         python-version: '3.13'
+        cache: 'pip'
+ # active le cache pip
+        cache-dependency-path: script/mysystem/requirements.txt
     - name: Dépendances
       run: pip install ifaddr psutil pylint
     - name: Lint
@@ -31,6 +34,9 @@ jobs:
     - uses: actions/setup-python@v7
       with:
         python-version: '3.13'
+        cache: 'pip'
+ # active le cache pip
+        cache-dependency-path: script/mysystem/requirements.txt        
     - name: Dépendances
       run: pip install ifaddr psutil
     - name: Exécution
