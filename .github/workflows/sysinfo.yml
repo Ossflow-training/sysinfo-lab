@@ -12,18 +12,8 @@ jobs:
 
     build:
         needs: lint
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v7
-            - name: Compilation
-              run: |
-                mkdir -p bin
-                make build
-            - name: Publication du binaire
-              uses: actions/upload-artifact@v7
-              with:
-                name: sysinfo-${{ github.sha }}
-                path: bin/sysinfo
+        uses: ./.github/workflows/build-sysinfo.yml
+# reusable workflow
 
     run:
         needs: build

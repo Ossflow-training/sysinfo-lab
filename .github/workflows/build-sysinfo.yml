@@ -1,0 +1,28 @@
+name: build sysinfo (réutilisable)
+on:
+  workflow_call:
+    outputs:
+      artifact:
+        description: Nom de l'artefact contenant le binaire
+        value: ${{ jobs.build.outputs.artifact }}
+env:
+  BINARY_C: bin/sysinfo
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact: ${{ steps.name.outputs.artifact }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Compilation
+        run: |
+          mkdir -p "$(dirname "$BINARY_C")"
+          make build
+      - name: Nom de l'artefact (SHA court)
+        id: name
+        run: echo "artifact=sysinfo-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+      - name: Publication du binaire
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.name.outputs.artifact }}
+          path: ${{ env.BINARY_C }}
