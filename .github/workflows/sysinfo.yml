@@ -22,7 +22,7 @@ jobs:
             - name: Récupération du binaire
               uses: actions/download-artifact@v8
               with:
-                name: sysinfo-${{ github.sha }}
+                name: ${{ needs.build.outputs.artifact }}
                 path: bin
             - name: Exécution
               run: |
